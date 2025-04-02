@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto Price Tracker</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -14,7 +13,7 @@
         }
         
         body {
-            background-color: #f5f5f7;
+            background-color: #f5f5f5;
             color: #333;
             padding: 20px;
         }
@@ -25,63 +24,35 @@
         }
         
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .search-container {
-            position: relative;
-            flex-grow: 1;
-            max-width: 400px;
-            margin: 0 15px;
+            text-align: center;
+            padding: 20px 0;
         }
         
         h1 {
-            color: #2a2a72;
-            font-size: 28px;
+            color: #333;
+            margin-bottom: 15px;
         }
         
-        .refresh-btn {
-            background-color: #2a2a72;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
         }
         
-        .refresh-btn:hover {
-            background-color: #1e1e52;
-        }
-        
-        .search-input {
+        #search-input {
             width: 100%;
-            padding: 10px 15px;
+            max-width: 500px;
+            padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
+            border-radius: 25px;
+            font-size: 16px;
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         
-        .search-input:focus {
-            border-color: #2a2a72;
-        }
-        
-        .search-icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #777;
+        #search-input:focus {
+            border-color: #4c6fff;
+            box-shadow: 0 0 0 2px rgba(76, 111, 255, 0.2);
         }
         
         .crypto-grid {
@@ -93,13 +64,14 @@
         .crypto-card {
             background-color: #fff;
             border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
         
         .crypto-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
         }
         
         .crypto-header {
@@ -109,82 +81,101 @@
         }
         
         .crypto-icon {
-            width: 40px;
-            height: 40px;
-            margin-right: 15px;
+            width: 36px;
+            height: 36px;
+            margin-right: 12px;
+            border-radius: 50%;
         }
         
         .crypto-name {
+            flex-grow: 1;
+        }
+        
+        .crypto-name h2 {
             font-size: 18px;
-            font-weight: bold;
+            margin-bottom: 2px;
         }
         
         .crypto-symbol {
-            color: #777;
+            color: #888;
             font-size: 14px;
-            margin-left: 5px;
-            text-transform: uppercase;
         }
         
         .crypto-price {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         
-        .price-change {
-            display: flex;
-            align-items: center;
+        .crypto-change {
+            font-size: 16px;
             margin-bottom: 15px;
         }
         
-        .price-change.positive {
-            color: #16c784;
+        .positive {
+            color: #4caf50;
         }
         
-        .price-change.negative {
-            color: #ea3943;
+        .negative {
+            color: #f44336;
         }
         
         .sparkline {
             width: 100%;
-            height: 50px;
+            height: 60px;
         }
         
-        .sparkline path {
-            fill: none;
-            stroke-width: 2;
-        }
-        
-        .positive-sparkline path {
-            stroke: #16c784;
-        }
-        
-        .negative-sparkline path {
-            stroke: #ea3943;
-        }
-        
-        .loading {
-            text-align: center;
-            font-size: 18px;
-            padding: 40px;
-            color: #777;
-        }
-        
-        .error {
-            background-color: #ffebee;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 5px;
-            text-align: center;
-            margin: 20px 0;
-        }
-        
-        .last-updated {
-            text-align: right;
-            color: #777;
+        .crypto-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
             font-size: 14px;
-            margin-top: 20px;
+            color: #555;
+        }
+        
+        .crypto-detail {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #4c6fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .error-message {
+            text-align: center;
+            color: #f44336;
+            padding: 30px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #555;
         }
     </style>
 </head>
@@ -192,218 +183,261 @@
     <div class="container">
         <header>
             <h1>Crypto Price Tracker</h1>
-            <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search cryptocurrencies...">
-                <span class="search-icon">🔍</span>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search cryptocurrencies...">
             </div>
-            <button class="refresh-btn" id="refreshBtn">Refresh Data</button>
         </header>
         
-        <div id="cryptoContainer" class="crypto-grid">
-            <div class="loading">Loading crypto data...</div>
+        <div id="crypto-container" class="crypto-grid">
+            <div class="loader">
+                <div class="spinner"></div>
+            </div>
         </div>
-        
-        <div class="last-updated" id="lastUpdated"></div>
     </div>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <script>
-        // Number of cryptocurrencies to fetch for the main display
-        const TOP_COINS = 12;
+        const cryptoContainer = document.getElementById('crypto-container');
+        const searchInput = document.getElementById('search-input');
+        let allCoins = [];
         
-        // Base URL for CoinGecko API
-        const API_URL = 'https://api.coingecko.com/api/v3';
+        // CoinGecko API endpoints
+        const API_BASE_URL = 'https://api.coingecko.com/api/v3';
+        const MARKET_DATA_ENDPOINT = '/coins/markets';
+        const SEARCH_ENDPOINT = '/search';
         
-        // DOM elements
-        const cryptoContainer = document.getElementById('cryptoContainer');
-        const refreshBtn = document.getElementById('refreshBtn');
-        const lastUpdatedEl = document.getElementById('lastUpdated');
-        const searchInput = document.getElementById('searchInput');
+        // Function to format currency values
+        function formatCurrency(value) {
+            if (value >= 1e9) {
+                return '$' + (value / 1e9).toFixed(2) + 'B';
+            } else if (value >= 1e6) {
+                return '$' + (value / 1e6).toFixed(2) + 'M';
+            } else if (value >= 1000) {
+                return '$' + (value / 1000).toFixed(2) + 'K';
+            } else {
+                return '$' + value.toFixed(2);
+            }
+        }
         
-        // Store original data for filtering
-        let allCryptoData = [];
-        
-        // Fetch top cryptocurrencies data
-        async function fetchCryptoData() {
+        // Function to fetch top cryptocurrencies
+        async function fetchTopCryptos() {
             try {
-                // Show loading state
-                cryptoContainer.innerHTML = '<div class="loading">Loading crypto data...</div>';
+                const params = new URLSearchParams({
+                    vs_currency: 'usd',
+                    order: 'market_cap_desc',
+                    per_page: 10,
+                    page: 1,
+                    sparkline: true,
+                    price_change_percentage: '24h,7d'
+                });
                 
-                // Fetch data from CoinGecko API
-                const response = await fetch(`${API_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${TOP_COINS}&page=1&sparkline=true&price_change_percentage=24h`);
+                const response = await fetch(`${API_BASE_URL}${MARKET_DATA_ENDPOINT}?${params}`);
                 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch data');
+                    throw new Error('Failed to fetch data from CoinGecko API');
+                }
+                
+                const data = await response.json();
+                allCoins = data;
+                displayCryptos(data);
+            } catch (error) {
+                console.error('Error fetching cryptocurrency data:', error);
+                cryptoContainer.innerHTML = `
+                    <div class="error-message">
+                        <p>Sorry, we couldn't load the cryptocurrency data at this time.</p>
+                        <p>Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Function to search cryptocurrencies
+        async function searchCryptos(query) {
+            try {
+                // Filter from already loaded data first
+                const filteredCoins = allCoins.filter(coin => 
+                    coin.name.toLowerCase().includes(query.toLowerCase()) || 
+                    coin.symbol.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                if (filteredCoins.length > 0) {
+                    displayCryptos(filteredCoins);
+                    return;
+                }
+                
+                // If no results from loaded data, search API
+                const params = new URLSearchParams({
+                    query: query
+                });
+                
+                cryptoContainer.innerHTML = `
+                    <div class="loader">
+                        <div class="spinner"></div>
+                    </div>
+                `;
+                
+                const response = await fetch(`${API_BASE_URL}${SEARCH_ENDPOINT}?${params}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to search cryptocurrencies');
                 }
                 
                 const data = await response.json();
                 
-                // Update last updated time
-                updateLastUpdated();
+                if (data.coins.length === 0) {
+                    cryptoContainer.innerHTML = `
+                        <div class="no-results">
+                            <p>No cryptocurrencies found matching "${query}".</p>
+                        </div>
+                    `;
+                    return;
+                }
                 
-                // Store all data
-                allCryptoData = data;
+                // Get detailed data for found coins (limit to top 10)
+                const coinIds = data.coins.slice(0, 10).map(coin => coin.id).join(',');
+                const detailParams = new URLSearchParams({
+                    vs_currency: 'usd',
+                    ids: coinIds,
+                    order: 'market_cap_desc',
+                    sparkline: true,
+                    price_change_percentage: '24h,7d'
+                });
                 
-                // Render crypto cards
-                renderCryptoGrid(allCryptoData);
+                const detailResponse = await fetch(`${API_BASE_URL}${MARKET_DATA_ENDPOINT}?${detailParams}`);
+                
+                if (!detailResponse.ok) {
+                    throw new Error('Failed to fetch detailed data for search results');
+                }
+                
+                const detailData = await detailResponse.json();
+                displayCryptos(detailData);
             } catch (error) {
-                console.error('Error fetching crypto data:', error);
-                cryptoContainer.innerHTML = `<div class="error">Failed to load cryptocurrency data. ${error.message}</div>`;
+                console.error('Error searching cryptocurrencies:', error);
+                cryptoContainer.innerHTML = `
+                    <div class="error-message">
+                        <p>Sorry, we couldn't complete your search at this time.</p>
+                        <p>Please try again later.</p>
+                    </div>
+                `;
             }
         }
         
-        // Render the grid of crypto cards
-        function renderCryptoGrid(cryptoData) {
-            // Clear the container
-            cryptoContainer.innerHTML = '';
-            
-            // Create a card for each cryptocurrency
-            cryptoData.forEach(crypto => {
-                const card = createCryptoCard(crypto);
-                cryptoContainer.appendChild(card);
-            });
-        }
-        
-        // Create a card for a single cryptocurrency
-        function createCryptoCard(crypto) {
-            const card = document.createElement('div');
-            card.className = 'crypto-card';
-            
-            // Determine if price change is positive or negative
-            const priceChangeClass = crypto.price_change_percentage_24h >= 0 ? 'positive' : 'negative';
-            const priceChangeSymbol = crypto.price_change_percentage_24h >= 0 ? '▲' : '▼';
-            
-            // Format price with appropriate commas and decimal places
-            const formattedPrice = formatPrice(crypto.current_price);
-            
-            // Format price change percentage
-            const formattedPriceChange = Math.abs(crypto.price_change_percentage_24h).toFixed(2);
-            
-            // Create card content
-            card.innerHTML = `
-                <div class="crypto-header">
-                    <img src="${crypto.image}" alt="${crypto.name}" class="crypto-icon">
-                    <div>
-                        <span class="crypto-name">${crypto.name}</span>
-                        <span class="crypto-symbol">${crypto.symbol}</span>
-                    </div>
-                </div>
-                <div class="crypto-price">$${formattedPrice}</div>
-                <div class="price-change ${priceChangeClass}">
-                    ${priceChangeSymbol} ${formattedPriceChange}%
-                </div>
-                <div id="sparkline-${crypto.id}" class="sparkline ${priceChangeClass}-sparkline"></div>
-            `;
-            
-            // Render sparkline after the card is added to the DOM
-            setTimeout(() => {
-                renderSparkline(crypto.id, crypto.sparkline_in_7d.price, priceChangeClass);
-            }, 0);
-            
-            return card;
-        }
-        
-        // Render sparkline chart using D3.js
-        function renderSparkline(cryptoId, sparklineData, trend) {
-            // Get container dimensions
-            const container = document.getElementById(`sparkline-${cryptoId}`);
-            if (!container) return;
-            
+        // Function to create sparkline charts
+        function createSparkline(container, data, change) {
             const width = container.clientWidth;
-            const height = container.clientHeight;
+            const height = 60;
+            const isPositive = change >= 0;
             
             // Create SVG element
-            const svg = d3.select(`#sparkline-${cryptoId}`)
+            const svg = d3.select(container)
                 .append('svg')
                 .attr('width', width)
-                .attr('height', height);
+                .attr('height', height)
+                .attr('class', 'sparkline');
             
-            // Use only a subset of data points for smoother rendering
-            const dataPoints = reduceDataPoints(sparklineData, 50);
-            
-            // Create scales
+            // Set up scales
             const xScale = d3.scaleLinear()
-                .domain([0, dataPoints.length - 1])
+                .domain([0, data.length - 1])
                 .range([0, width]);
             
             const yScale = d3.scaleLinear()
-                .domain([d3.min(dataPoints), d3.max(dataPoints)])
+                .domain([d3.min(data), d3.max(data)])
                 .range([height - 5, 5]);
             
             // Create line generator
             const line = d3.line()
                 .x((d, i) => xScale(i))
                 .y(d => yScale(d))
-                .curve(d3.curveBasis);
+                .curve(d3.curveMonotoneX);
             
-            // Draw the line
+            // Draw line
             svg.append('path')
-                .datum(dataPoints)
+                .datum(data)
+                .attr('fill', 'none')
+                .attr('stroke', isPositive ? '#4caf50' : '#f44336')
+                .attr('stroke-width', 2)
                 .attr('d', line);
-        }
-        
-        // Reduce the number of data points for smoother rendering
-        function reduceDataPoints(data, targetCount) {
-            if (data.length <= targetCount) return data;
             
-            const skipFactor = Math.floor(data.length / targetCount);
-            return data.filter((_, i) => i % skipFactor === 0);
-        }
-        
-        // Format price with appropriate commas and decimal places
-        function formatPrice(price) {
-            if (price >= 1000) {
-                return price.toLocaleString('en-US', { 
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-            } else if (price >= 1) {
-                return price.toLocaleString('en-US', { 
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 4
-                });
-            } else {
-                return price.toLocaleString('en-US', { 
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 6
-                });
-            }
-        }
-        
-        // Update the last updated time
-        function updateLastUpdated() {
-            const now = new Date();
-            lastUpdatedEl.textContent = `Last updated: ${now.toLocaleTimeString()}`;
-        }
-        
-        // Filter cryptocurrencies based on search input
-        function filterCryptos(searchTerm) {
-            if (!searchTerm) {
-                renderCryptoGrid(allCryptoData);
-                return;
-            }
+            // Add a subtle area fill
+            const area = d3.area()
+                .x((d, i) => xScale(i))
+                .y0(height)
+                .y1(d => yScale(d))
+                .curve(d3.curveMonotoneX);
             
-            searchTerm = searchTerm.toLowerCase();
-            const filteredData = allCryptoData.filter(crypto => 
-                crypto.name.toLowerCase().includes(searchTerm) || 
-                crypto.symbol.toLowerCase().includes(searchTerm)
-            );
-            
-            if (filteredData.length === 0) {
-                cryptoContainer.innerHTML = `<div class="error">No cryptocurrencies found matching "${searchTerm}"</div>`;
-            } else {
-                renderCryptoGrid(filteredData);
-            }
+            svg.append('path')
+                .datum(data)
+                .attr('fill', isPositive ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)')
+                .attr('d', area);
         }
         
-        // Event listeners
-        refreshBtn.addEventListener('click', fetchCryptoData);
+        // Function to display cryptocurrencies
+        function displayCryptos(cryptos) {
+            cryptoContainer.innerHTML = '';
+            
+            cryptos.forEach(crypto => {
+                const priceChange24h = crypto.price_change_percentage_24h || 0;
+                const isPositive = priceChange24h >= 0;
+                const changeSymbol = isPositive ? '+' : '';
+                
+                const cryptoCard = document.createElement('div');
+                cryptoCard.className = 'crypto-card';
+                
+                cryptoCard.innerHTML = `
+                    <div class="crypto-header">
+                        <img src="${crypto.image}" alt="${crypto.name}" class="crypto-icon">
+                        <div class="crypto-name">
+                            <h2>${crypto.name}</h2>
+                            <span class="crypto-symbol">${crypto.symbol.toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div class="crypto-price">
+                        $${crypto.current_price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 6})}
+                    </div>
+                    <div class="crypto-change ${isPositive ? 'positive' : 'negative'}">
+                        ${changeSymbol}${priceChange24h.toFixed(2)}% (24h)
+                    </div>
+                    <div class="sparkline-container"></div>
+                    <div class="crypto-details">
+                        <div class="crypto-detail">
+                            <span class="detail-label">Market Cap</span>
+                            <span>${formatCurrency(crypto.market_cap)}</span>
+                        </div>
+                        <div class="crypto-detail">
+                            <span class="detail-label">24h Volume</span>
+                            <span>${formatCurrency(crypto.total_volume)}</span>
+                        </div>
+                    </div>
+                `;
+                
+                cryptoContainer.appendChild(cryptoCard);
+                
+                // Create sparkline after the card is added to the DOM
+                const sparklineContainer = cryptoCard.querySelector('.sparkline-container');
+                createSparkline(sparklineContainer, crypto.sparkline_in_7d.price, priceChange24h);
+            });
+        }
         
-        searchInput.addEventListener('input', (e) => {
-            filterCryptos(e.target.value.trim());
+        // Event listener for search input
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            searchTimeout = setTimeout(() => {
+                if (query === '') {
+                    displayCryptos(allCoins);
+                } else {
+                    searchCryptos(query);
+                }
+            }, 500);
         });
         
-        // Initial data fetch
-        fetchCryptoData();
+        // Initial load
+        fetchTopCryptos();
+        
+        // Refresh data every 60 seconds
+        setInterval(fetchTopCryptos, 60000);
     </script>
 </body>
 </html>
